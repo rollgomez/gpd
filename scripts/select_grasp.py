@@ -15,6 +15,7 @@ def cloudCallback(msg):
 rospy.init_node('select_grasp')
 
 # Subscribe to the ROS topic that contains the grasps.
+# cloud_sub = rospy.Subscriber('/cloud_pcd', PointCloud2, cloudCallback)
 cloud_sub = rospy.Subscriber('/cloud_pcd', PointCloud2, cloudCallback)
 
 # Wait for point cloud to arrive.
@@ -45,18 +46,18 @@ pub = rospy.Publisher('cloud_indexed', CloudIndexed, queue_size=1)
 
 msg = CloudIndexed()
 header = Header()
-header.frame_id = "/base_link"
+header.frame_id = "base_link"
 header.stamp = rospy.Time.now()
 msg.cloud_sources.cloud = point_cloud2.create_cloud_xyz32(header, cloud.tolist())
 msg.cloud_sources.view_points.append(Point(0,0,0))
-for i in xrange(cloud.shape[0]):
+for i in range(cloud.shape[0]):
     msg.cloud_sources.camera_source.append(Int64(0))
 for i in idx[0]:
     msg.indices.append(Int64(i))    
-s = raw_input('Hit [ENTER] to publish')
+s = input('Hit [ENTER] to publish')
 pub.publish(msg)
 rospy.sleep(2)
-print 'Published cloud with', len(msg.indices), 'indices'
+print ('Published cloud with', len(msg.indices), 'indices')
 
 
 # Select a grasp for the robot to execute.
@@ -80,4 +81,4 @@ while not rospy.is_shutdown():
         break
 
 grasp = grasps[0] # grasps are sorted in descending order by score
-print 'Selected grasp with score:', grasp.score
+print( 'Selected grasp with score:', grasp.score)
